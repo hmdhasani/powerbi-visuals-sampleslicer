@@ -93,6 +93,7 @@
                 justify-content: flex-start;
                 margin-top: -5px;
                 margin-left: -6px;
+                flex-direction: row-reverse;
 
                 .numeric-range-slicer-control {
                     position: relative;
@@ -102,7 +103,7 @@
 
                     .numeric-range-slicer-input {
                         box-sizing: border-box;
-                        width: 6.16em;
+                        width: 8.16em;
                         height: 2.16em;
                         padding: 0 0 0 0.5em;
                         font-size: inherit;
@@ -139,6 +140,7 @@
     }
 
 .sampleSlicer {
+    display: none;
     font-family: @regularFontFamily;
     padding: 5px 6px 7px 8px;
     .clear {
@@ -427,4 +429,8 @@
     }
   }
 }
+}
+
+.headerText{
+    display: none;
 }

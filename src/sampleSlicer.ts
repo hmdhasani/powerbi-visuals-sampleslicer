@@ -284,7 +284,7 @@ module powerbi.extensibility.visual {
 
         private restoreFilter(data: SampleSlicerData) {
             let restoredFilter: IAdvancedFilter =
-            FilterManager.restoreFilter(data && data.slicerSettings.general.filter) as IAdvancedFilter;
+                FilterManager.restoreFilter(data && data.slicerSettings.general.filter) as IAdvancedFilter;
             if (restoredFilter) {
                 restoredFilter.target = this.getCallbacks().getAdvancedFilterColumnTarget();
                 // reset to default
@@ -298,7 +298,7 @@ module powerbi.extensibility.visual {
                         min?: any
                     } = {};
 
-                    let convertedValues = data.slicerDataPoints.map( (dataPoint: SampleSlicerDataPoint) => +dataPoint.category );
+                    let convertedValues = data.slicerDataPoints.map((dataPoint: SampleSlicerDataPoint) => +dataPoint.category);
                     value.min = d3.min(convertedValues);
                     value.max = d3.max(convertedValues);
 
@@ -319,7 +319,7 @@ module powerbi.extensibility.visual {
 
                 let rangeValue: ValueRange<number> = <ValueRange<number>>{};
 
-                restoredFilter.conditions.forEach( (condition: IAdvancedFilterCondition) => {
+                restoredFilter.conditions.forEach((condition: IAdvancedFilterCondition) => {
                     let value = condition.value;
                     let operator = condition.operator;
                     if (operator === "LessThanOrEqual" || operator === "LessThan") {
@@ -331,8 +331,8 @@ module powerbi.extensibility.visual {
                 });
 
                 this.behavior.scalableRange.setValue(rangeValue);
-                this.onRangeInputTextboxChange(rangeValue.min.toString(), RangeValueType.Start);
-                this.onRangeInputTextboxChange(rangeValue.max.toString(), RangeValueType.End);
+                //this.onRangeInputTextboxChange(rangeValue.min.toString(), RangeValueType.Start);
+                //this.onRangeInputTextboxChange(rangeValue.max.toString(), RangeValueType.End);
             }
         }
 
@@ -443,6 +443,9 @@ module powerbi.extensibility.visual {
             this.$start = this.createInputElement($startControl);
             this.$end = this.createInputElement($endControl);
 
+            $startControl.append(' از');
+            $endControl.append(' تا');
+
             let slicerContainer: Selection<any> = d3.select(this.$root.get(0))
                 .append('div')
                 .classed(SampleSlicer.ContainerSelector.className, true)
@@ -511,7 +514,7 @@ module powerbi.extensibility.visual {
             });
 
             this.$start.on("focus", (event: JQueryEventObject) => {
-                this.$start.val(this.formatValue(this.behavior.scalableRange.getValue().min));
+                //this.$start.val(this.formatValue(this.behavior.scalableRange.getValue().min));
                 this.$start.select();
             });
 
@@ -528,7 +531,7 @@ module powerbi.extensibility.visual {
             });
 
             this.$end.on("focus", (event: JQueryEventObject) => {
-                this.$end.val(this.formatValue(this.behavior.scalableRange.getValue().max));
+                //this.$end.val(this.formatValue(this.behavior.scalableRange.getValue().max));
                 this.$end.select();
             });
         }
@@ -539,6 +542,7 @@ module powerbi.extensibility.visual {
             let options: noUiSlider.Options = {
                 connect: true,
                 behaviour: "tap-drag",
+                direction:'rtl',
                 range: {
                     min: 0,
                     max: 100
@@ -576,15 +580,59 @@ module powerbi.extensibility.visual {
         }
 
         public updateSliderInputTextboxes(): void {
-            this.$start.val(this.formatValue(this.behavior.scalableRange.getValue().min));
-            this.$end.val(this.formatValue(this.behavior.scalableRange.getValue().max));
+            //this.$start.val(this.formatValue(this.behavior.scalableRange.getValue().min));
+            //this.$end.val(this.formatValue(this.behavior.scalableRange.getValue().max));
         }
 
         public formatValue(value: number): string {
             return value != null ? valueFormatter.format(value, "#") : '';
         }
 
+        private get2Digit(n) {
+            return n > 9 ? "" + n : "0" + n;
+        }
+
         private onRangeInputTextboxChange(inputString: string, rangeValueType: RangeValueType, supressFilter: boolean = false): void {
+            if (inputString) {
+                let convertedInputString: string;
+                let year: number = null;
+                let month: number = 1;
+                let day: number = 1;
+
+                let parts = inputString.split('/', 3);
+                if (parts.length >= 1) {
+                    year = parseInt(parts[0]);
+                    if (isNaN(year)) {
+                        year = null;
+                    }
+                }
+                if (parts.length >= 2) {
+                    month = parseInt(parts[1]);
+                    if (isNaN(month)) {
+                        month = 1;
+                    }
+                }
+                if (parts.length >= 3) {
+                    day = parseInt(parts[2]);
+                    if (isNaN(day)) {
+                        day = 1;
+                    }
+                }
+
+                if (year) {
+                    if (year < 100) {
+                        year += 1300;
+                    }
+
+                    inputString = year.toString() + this.get2Digit(month) + this.get2Digit(day);
+                    if (rangeValueType === RangeValueType.Start) {
+                        this.$start.val(year.toString() + '/' + this.get2Digit(month) + '/' + this.get2Digit(day));
+                    } else if (rangeValueType === RangeValueType.End) {
+                        this.$end.val(year.toString() + '/' + this.get2Digit(month) + '/' + this.get2Digit(day));
+                    }
+                }
+            }
+
             // parse input
             let inputValue: number;
             if (!inputString) {
@@ -836,7 +884,7 @@ module powerbi.extensibility.visual {
             let callbacks: SampleSlicerCallbacks = {};
 
             callbacks.applyAdvancedFilter = (filter: IAdvancedFilter): void => {
-                this.visualHost.applyJsonFilter(filter, "general", "filter", FilterAction.merge );
+                this.visualHost.applyJsonFilter(filter, "general", "filter", FilterAction.merge);
             };
 
             callbacks.getAdvancedFilterColumnTarget = (): IFilterColumnTarget => {

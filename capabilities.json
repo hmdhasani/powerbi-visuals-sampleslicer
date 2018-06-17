@@ -66,7 +66,7 @@
         }    
     },
     "supportsHighlight": true,
-    "suppressDefaultTitle": true,
+    "suppressDefaultTitle": false,
     "sorting": {
         "default": {}
     }
